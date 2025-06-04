@@ -1,5 +1,6 @@
 import argparse
 import os
+import subprocess
 from providers.openai import OpenAIModelProvider
 
 
@@ -41,6 +42,14 @@ def main():
             print("Flags:")
             for flag in command.flags:
                 print(f"  --{flag.name} {flag.value}")
+        # Offer to run the command
+        user_input = input(f"\nWould you like to run this command? [y/N]: ").strip().lower()
+        if user_input == 'y':
+            try:
+                print(f"\nRunning: {command.full_command}\n")
+                result = subprocess.run(command.full_command, shell=True, check=True, text=True)
+            except subprocess.CalledProcessError as e:
+                print(f"\nError running command: {e}")
 
 if __name__ == "__main__":
     main()
