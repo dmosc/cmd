@@ -1,7 +1,7 @@
 import argparse
 import os
-import shutil
-from model_provider import OpenAIModelProvider
+from providers.openai import OpenAIModelProvider
+
 
 def get_env_vars():
     return dict(os.environ)
@@ -34,7 +34,13 @@ def main():
     }
     provider = OpenAIModelProvider(api_key=api_key)
     command = provider.generate_command(prompt, context)
-    print(f"\nGenerated command:\n{command}")
+    if command:
+        print(f"\nDescription: {command.description}")
+        print(f"Command: {command.full_command}")
+        if command.flags:
+            print("Flags:")
+            for flag in command.flags:
+                print(f"  --{flag.name} {flag.value}")
 
 if __name__ == "__main__":
     main()
