@@ -14,11 +14,11 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - os: ubuntu-latest
-            folder: linux
+            target_name: linux-main
           - os: macos-latest
-            folder: macos
+            target_name: macos-main
           - os: windows-latest
-            folder: windows
+            target_name: windows-main.exe
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -32,29 +32,23 @@ jobs:
       - name: Build with PyInstaller
         run: |
           pyinstaller --onefile main.py
-          mkdir -p dist/${{ matrix.folder }}
-          mv dist/main* dist/${{ matrix.folder }}/
+          cp dist/main* dist/${{ matrix.target_name }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.folder }}-dist
-          path: dist/${{ matrix.folder }}/
+          name: ${{ matrix.target_name }}
+          path: dist/${{ matrix.target_name }}
 
   release:
     needs: build
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
-      - name: Sleep for 5s
-        run: sleep 5s
-        shell: bash
       - uses: actions/checkout@v4
         with:
           fetch-depth: '0'
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
-        with:
-          path: dist/
       - name: Bump version and push tag
         id: bump
         uses: anothrNick/github-tag-action@v1
@@ -66,7 +60,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.bump.outputs.new_tag }}
+          fail_on_unmatched_files: true
           files: |
-            linux-dist
-            macos-dist
-            windows-dist
+            */*-main*
