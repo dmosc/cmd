@@ -45,6 +45,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
+      - name: Sleep for 5s
+        run: sleep 5s
+        shell: bash
       - uses: actions/checkout@v4
         with:
           fetch-depth: '0'
