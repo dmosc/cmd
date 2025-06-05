@@ -37,7 +37,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.folder }}
+          name: ${{ matrix.folder }}-dist
           path: dist/${{ matrix.folder }}/
 
   release:
@@ -67,6 +67,6 @@ jobs:
         with:
           tag_name: ${{ steps.bump.outputs.new_tag }}
           files: |
-            dist/linux/*
-            dist/macos/*
-            dist/windows/*
+            linux-dist
+            macos-dist
+            windows-dist
