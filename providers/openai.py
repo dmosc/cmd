@@ -27,3 +27,11 @@ class OpenAIModelProvider(ModelProvider):
         )
         if parsed_completion := completion.output_parsed:
             return CommandModel(**parsed_completion.model_dump())
+
+    def generate_chat(self, prompt: str) -> str:
+        openai.api_key = self.api_key
+        completion = openai.responses.create(
+            model = self.model,
+            input = prompt
+        )
+        return completion.output_text
