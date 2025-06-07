@@ -20,7 +20,7 @@ def get_installed_clis():
     return sorted(clis)
 
 def main():
-    prompt, chat = CLIArgumentParser.parse()
+    prompt, chat, thread = CLIArgumentParser.parse()
 
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
@@ -52,5 +52,8 @@ def main():
     if chat:
         print(provider.generate_chat(chat))
 
+    if thread:
+        print("Feature is in progress")
+        exit(1)
 if __name__ == "__main__":
     main()

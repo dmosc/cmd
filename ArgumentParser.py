@@ -20,17 +20,22 @@ class CLIArgumentParser:
         group.add_argument('--chat', '-c', type=str, help='A one-off chat with an LLM that you can prompt from your command line. Does not relate to any existing thread', metavar='<text>')
 
         # Add `--thread` or `-t` argument
-        group.add_argument('--thread', '-t', nargs="+", type=str, help='Use an existing conversation you\'ve had as part of the context. If empty will use a default thread.', metavar='<text>')
-        
+        group.add_argument('--thread', '-t', nargs='?', help='The thread id you want to use in this conversation, if none is provided will use a default thread', metavar='<text>')
+        parser.add_argument('thread_content', nargs='?', type=str, help='The chat content or prompt for your thread conversation. Must be used in conjuction with the --thread flag.')
+
         args = parser.parse_args()
         
-        thread_id = None
-        thread_prompt = None
+        thread = None
         if args.thread:
-            print(args.thread)
-            if '=' in args.text[0]:
-                thread_id, thread_prompt = args.thread[0].split('=', 1)[1], args.text[1:]
+            # If thread_content is provided, thread contains the ID and thread_content contains the prompt
+            if args.thread_content:
+                thread_id = args.thread
+                thread_prompt = args.thread_content
+            # If thread_content is None, thread actually contains the prompt (no ID specified)
             else:
+                thread_id = None
                 thread_prompt = args.thread
+            
+            thread = Thread(thread_id, thread_prompt)
 
-        return args.prompt, args.chat
+        return args.prompt, args.chat, thread
