@@ -18,8 +18,6 @@ THREAD_ID = 'thread_id'
 LONG_FORM_THREAD_WITH_ID = LONG_FORM_THREAD + '=' + THREAD_ID
 SHORT_FORM_THREAD_WITH_ID = SHORT_FORM_THREAD + '=' + THREAD_ID
 COMMAND = 'main.py'
-THREAD = Thread(thread_id = None, thread_prompt = THREAD_CONTENT)
-THREAD_WITH_ID = Thread(thread_id = THREAD_ID, thread_prompt = THREAD_CONTENT)
 
 class ArgumentParserTest(unittest.TestCase):
 
@@ -98,5 +96,6 @@ class ArgumentParserTest(unittest.TestCase):
         self.assertIsNone(thread.thread_id)
         self.assertIsNone(prompt)
         self.assertIsNone(chat)
+
 if __name__ == "__main__":
     unittest.main()
