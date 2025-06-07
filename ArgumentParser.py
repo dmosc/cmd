@@ -1,5 +1,5 @@
 import argparse
-from dataclass import dataclass
+from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Thread:
@@ -32,4 +32,5 @@ class CLIArgumentParser:
                 thread_id, thread_prompt = args.thread[0].split('=', 1)[1], args.text[1:]
             else:
                 thread_prompt = args.thread
-        return args.prompt, args.chat
+
+        return args.prompt, args.chat, Thread(thread_id, thread_prompt)
