@@ -10,7 +10,6 @@ class CLIArgumentParser:
     @staticmethod
     def parse():
         parser = argparse.ArgumentParser(description='CLI Toolkit to launch developer productivity.')
-        sub_parser = parser.add_subparsers(dest='command', help='Available commands')
         # Create a mutually exclusive group
         group = parser.add_mutually_exclusive_group(required=True)
     
@@ -27,7 +26,7 @@ class CLIArgumentParser:
         
         thread_id = None
         thread_prompt = None
-        if threads:
+        if args.threads:
             if '=' in args.text[0]:
                 thread_id, thread_prompt = args.thread[0].split('=', 1)[1], args.text[1:]
             else:
