@@ -20,7 +20,7 @@ def get_installed_clis():
     return sorted(clis)
 
 def main():
-    prompt, chat, thread = CLIArgumentParser.parse()
+    prompt, chat = CLIArgumentParser.parse()
 
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
