@@ -1,4 +1,10 @@
 import argparse
+from dataclass import dataclass
+
+@dataclass(frozen=True)
+class Thread:
+    thread_id: str
+    thread_prompt: str
 
 class CLIArgumentParser:
     @staticmethod
@@ -13,6 +19,17 @@ class CLIArgumentParser:
     
         # Add `--chat` or `-c` argument
         group.add_argument('--chat', '-c', type=str, help='Provide chat text', metavar='<text>')
+
+        # Add `--thread` or `-t` argument
+        group.add_argument('--thread', '-t', nargs="+", type=str, help='Use an existing conversation you\'ve had as part of the context. If empty will use a default thread.', metavar='<text>')
     
         args = parser.parse_args()
+        
+        thread_id = None
+        thread_prompt = None
+        if threads:
+            if '=' in args.text[0]:
+                thread_id, thread_prompt = args.thread[0].split('=', 1)[1], args.text[1:]
+            else:
+                thread_prompt = args.thread
         return args.prompt, args.chat
