@@ -3,7 +3,7 @@ import argparse
 class CLIArgumentParser:
     @staticmethod
     def parse():
-        parser = argparse.ArgumentParser(description='Generate CLI commands from natural language using an LLM.')
+        parser = argparse.ArgumentParser(description='CLI Toolkit to launch developer productivity.')
         sub_parser = parser.add_subparsers(dest='command', help='Available commands')
 
         # Prompt parser
