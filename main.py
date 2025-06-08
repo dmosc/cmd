@@ -1,8 +1,7 @@
-import argparse
 import os
 import subprocess
 from providers.openai import OpenAIModelProvider
-from ArgumentParser import CLIArgumentParser
+from argument_parser import ArgumentParser
 
 def get_env_vars():
     return dict(os.environ)
@@ -20,8 +19,7 @@ def get_installed_clis():
     return sorted(clis)
 
 def main():
-    prompt, chat = CLIArgumentParser.parse()
-
+    args = ArgumentParser.parse()
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         print("Error: Please set the OPENAI_API_KEY environment variable.")
@@ -32,8 +30,8 @@ def main():
         "installed_clis": get_installed_clis(),
     }
     provider = OpenAIModelProvider(api_key=api_key)
-    if prompt:
-        command = provider.generate_command(prompt, context)
+    if args.prompt:
+        command = provider.generate_command(args.prompt, context)
         if command:
             print(f"\nDescription: {command.description}")
             print(f"Command: {command.full_command}")
@@ -42,15 +40,15 @@ def main():
                 for flag in command.flags:
                     print(f"  --{flag.name} {flag.value}")
             # Offer to run the command
-            user_input = input(f"\nWould you like to run this command? [y/N]: ").strip().lower()
+            user_input = input(f"Would you like to run this command? [y/N]: ").strip().lower()
             if user_input == 'y':
                 try:
-                    print(f"\nRunning: {command.full_command}\n")
+                    print(f"Running: {command.full_command}")
                     result = subprocess.run(command.full_command, shell=True, check=True, text=True)
                 except subprocess.CalledProcessError as e:
-                    print(f"\nError running command: {e}")
-    if chat:
-        print(provider.generate_chat(chat))
+                    print(f"Error running command: {e}")
+    elif args.chat:
+        print(provider.generate_chat(args.chat))
 
 if __name__ == "__main__":
     main()
