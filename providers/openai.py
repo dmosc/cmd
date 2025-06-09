@@ -2,12 +2,20 @@ import openai
 from typing import Any, Dict, Optional
 from models.command import CommandModel
 from providers.model_provider import ModelProvider
-
+from providers.ThreadMapper import ThreadMapper
 
 class OpenAIModelProvider(ModelProvider):
     def __init__(self, api_key: str, model: str = "gpt-4o-mini"):
         self.api_key = api_key
         self.model = model
+        openai.api_key = self.api_key
+        # Create an assistant for thread conversations
+        self.assistant = openai.beta.assistants.create(
+            name="Command Line Assistant",
+            instructions="You are a helpful assistant that helps users with command line tasks and general questions.",
+            model=self.model
+        )
+        self.assistant_id = self.assistant.id
 
     def generate_command(self, prompt: str, context: Dict[str, Any]) -> Optional[CommandModel]:
         openai.api_key = self.api_key
@@ -35,3 +43,35 @@ class OpenAIModelProvider(ModelProvider):
             input = prompt
         )
         return completion.output_text
+
+    def generate_thread(self, thread_id: str, prompt: str) -> str:
+        openai.api_key = self.api_key
+        thread_id_map = ThreadMapper.get_thread_map()
+        self.create_thread_if_does_not_exist(thread_id, thread_id_map)
+        updated_thread_id_map = ThreadMapper.get_thread_map()
+        real_id = updated_thread_id_map[thread_id]
+        message = openai.beta.threads.messages.create(
+            thread_id=real_id,
+            role='user',
+            content=prompt
+        )
+        run = openai.beta.threads.runs.create(
+            thread_id=real_id,
+            assistant_id=self.assistant_id
+        )
+        response = self.poll_for_llm_response(real_id, message.id)
+        return response.content[0].text.value
+
+    def poll_for_llm_response(self, t_id: str, m_id: str):
+        messages = openai.beta.threads.messages.list(t_id)
+        while self.latest_message_is_user_message(messages, m_id):
+            messages = openai.beta.threads.messages.list(t_id)
+        return messages.data[0]
+
+    def latest_message_is_user_message(self, messages, m_id: str) -> bool:
+        return messages.data[0].id == m_id
+
+    def create_thread_if_does_not_exist(self, t_id: str, thread_id_map):
+        if t_id not in thread_id_map.keys():
+            response = openai.beta.threads.create()
+            ThreadMapper.map_new_thread(user_specified_id = t_id, platform_generated_id = response.id)

@@ -53,7 +53,6 @@ def main():
         print(provider.generate_chat(chat))
 
     if thread:
-        print("Feature is in progress")
-        exit(1)
+        print(provider.generate_thread(thread.thread_id, thread.thread_prompt))
 if __name__ == "__main__":
     main()
