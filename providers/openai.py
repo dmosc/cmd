@@ -2,7 +2,7 @@ import openai
 from typing import Any, Dict, Optional
 from models.command import CommandModel
 from providers.model_provider import ModelProvider
-from providers.ThreadMapper import ThreadMapper
+from providers.thread_mapper import ThreadMapper
 import time
 
 class OpenAIModelProvider(ModelProvider):

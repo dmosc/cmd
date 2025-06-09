@@ -2,7 +2,7 @@ import argparse
 import os
 import subprocess
 from providers.openai import OpenAIModelProvider
-from ArgumentParser import CLIArgumentParser
+from cli_platform.argument_parser import CLIArgumentParser
 
 def get_env_vars():
     return dict(os.environ)
