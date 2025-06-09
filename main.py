@@ -20,7 +20,11 @@ def get_installed_clis():
     return sorted(clis)
 
 def main():
-    prompt, chat, thread = CLIArgumentParser.parse()
+    prompt, force_command, thread = CLIArgumentParser.parse()
+
+    if not prompt:
+        print("Error: Please provide a prompt.")
+        exit(1)
 
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
@@ -32,7 +36,7 @@ def main():
         "installed_clis": get_installed_clis(),
     }
     provider = OpenAIModelProvider(api_key=api_key)
-    if prompt:
+    if force_command:
         command = provider.generate_command(prompt, context)
         if command:
             print(f"\nDescription: {command.description}")
@@ -49,10 +53,7 @@ def main():
                     result = subprocess.run(command.full_command, shell=True, check=True, text=True)
                 except subprocess.CalledProcessError as e:
                     print(f"\nError running command: {e}")
-    if chat:
-        print(provider.generate_chat(chat))
-
-    if thread:
-        print(provider.generate_thread(thread.thread_id, thread.thread_prompt))
+    else:
+        print(provider.generate_thread(thread, prompt))
 if __name__ == "__main__":
     main()

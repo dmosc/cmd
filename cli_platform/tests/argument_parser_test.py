@@ -5,14 +5,11 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from argument_parser import *
 
-LONG_FORM_PROMPT = '--prompt'
-LONG_FORM_CHAT = '--chat'
+LONG_FORM_PROMPT = '--force_command'
 LONG_FORM_THREAD = '--thread'
-SHORT_FORM_PROMPT = '-p'
-SHORT_FORM_CHAT = '-c'
+SHORT_FORM_PROMPT = '-f'
 SHORT_FORM_THREAD = '-t'
 PROMPT_CONTENT = 'test prompt'
-CHAT_CONTENT = 'test chat'
 THREAD_CONTENT = 'test thread'
 THREAD_ID = 'thread_id'
 LONG_FORM_THREAD_WITH_ID = LONG_FORM_THREAD + '=' + THREAD_ID
@@ -26,76 +23,53 @@ class ArgumentParserTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_prompt_long_form(self):
-        # For command 'cmd --prompt "test prompt"'
+    def test_force_command_long_form(self):
+        # For command 'cmd --force_command "test prompt"'
         sys.argv = [COMMAND, LONG_FORM_PROMPT, PROMPT_CONTENT]
-        prompt, chat, thread = CLIArgumentParser.parse()
+        prompt, force_command, thread = CLIArgumentParser.parse()
         self.assertEqual(prompt, PROMPT_CONTENT)
-        self.assertIsNone(chat)
-        self.assertIsNone(thread)
-    
-    def test_prompt_short_form(self):
-        # For command 'cmd -p "test prompt"'
-        sys.argv = [COMMAND, SHORT_FORM_PROMPT, PROMPT_CONTENT]
-        prompt, chat, thread = CLIArgumentParser.parse()
-        self.assertEqual(prompt, PROMPT_CONTENT)
-        self.assertIsNone(chat)
+        self.assertEqual(force_command, True)
         self.assertIsNone(thread)
 
-    def test_chat_long_form(self):
-        # For command 'cmd --chat "test chat"'
-        sys.argv = [COMMAND, LONG_FORM_CHAT, CHAT_CONTENT]
-        prompt, chat, thread = CLIArgumentParser.parse()
-        self.assertEqual(chat, CHAT_CONTENT)
-        self.assertIsNone(prompt)
+    def test_force_command_short_form(self):
+        # For command 'cmd -f "test prompt"'
+        sys.argv = [COMMAND, SHORT_FORM_PROMPT, PROMPT_CONTENT]
+        prompt, force_command, thread = CLIArgumentParser.parse()
+        self.assertEqual(prompt, PROMPT_CONTENT)
+        self.assertEqual(force_command, True)
         self.assertIsNone(thread)
-    
-    def test_chat_short_form(self):
-        # For command 'cmd -c "test chat"'
-        sys.argv = [COMMAND, SHORT_FORM_CHAT, CHAT_CONTENT]
-        prompt, chat, thread = CLIArgumentParser.parse()
-        self.assertEqual(chat, CHAT_CONTENT)
-        self.assertIsNone(prompt)
-        self.assertIsNone(thread)
-    
+
     def test_thread_long_form_has_thread_id(self):
         # For command 'cmd --thread="thread_id" "test thread"'
         sys.argv = [COMMAND, LONG_FORM_THREAD_WITH_ID, THREAD_CONTENT]
-        prompt, chat, thread = CLIArgumentParser.parse()
-        self.assertEqual(thread.thread_id, THREAD_ID)
-        self.assertEqual(thread.thread_prompt, THREAD_CONTENT)
-        self.assertIsNone(prompt)
-        self.assertIsNone(chat)
+        prompt, force_command, thread = CLIArgumentParser.parse()
+        self.assertEqual(thread, THREAD_ID)
+        self.assertEqual(prompt, THREAD_CONTENT)
+        self.assertFalse(force_command)
     
     def test_thread_short_form_has_thread_id(self):
         # For command 'cmd -t="thread_id" "test thread"'
         sys.argv = [COMMAND, SHORT_FORM_THREAD_WITH_ID, THREAD_CONTENT]
-        prompt, chat, thread = CLIArgumentParser.parse()
-        print(thread)
-        self.assertEqual(thread.thread_id, THREAD_ID)
-        self.assertEqual(thread.thread_prompt, THREAD_CONTENT)
-        self.assertIsNone(prompt)
-        self.assertIsNone(chat)
+        prompt, force_command, thread = CLIArgumentParser.parse()
+        self.assertEqual(thread, THREAD_ID)
+        self.assertEqual(prompt, THREAD_CONTENT)
+        self.assertFalse(force_command)
     
     def test_thread_long_form_no_thread_id(self):
         # For command 'cmd --thread "test thread"'
         sys.argv = [COMMAND, LONG_FORM_THREAD, THREAD_CONTENT]
-        prompt, chat, thread = CLIArgumentParser.parse()
-        print("Thread:", thread)
-        self.assertEqual(thread.thread_prompt, THREAD_CONTENT)
-        self.assertIsNone(thread.thread_id)
-        self.assertIsNone(prompt)
-        self.assertIsNone(chat)
+        prompt, force_command, thread = CLIArgumentParser.parse()
+        self.assertEqual(thread, THREAD_CONTENT)
+        self.assertFalse(force_command)
+        self.assertEqual(prompt, None)
     
     def test_thread_short_form_no_thread_id(self):
-        # For command 'cmd -t "test thread"'
+        # For command 'cmd "test thread"'
         sys.argv = [COMMAND, SHORT_FORM_THREAD, THREAD_CONTENT]
-        prompt, chat, thread = CLIArgumentParser.parse()
-        print("Thread:", thread)
-        self.assertEqual(thread.thread_prompt, THREAD_CONTENT)
-        self.assertIsNone(thread.thread_id)
-        self.assertIsNone(prompt)
-        self.assertIsNone(chat)
+        prompt, force_command, thread = CLIArgumentParser.parse()
+        self.assertEqual(thread, THREAD_CONTENT)
+        self.assertFalse(force_command)
+        self.assertEqual(prompt, None)
 
 if __name__ == "__main__":
     unittest.main()
