@@ -3,7 +3,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from ArgumentParser import *
+from argument_parser import *
 
 LONG_FORM_PROMPT = '--prompt'
 LONG_FORM_CHAT = '--chat'
