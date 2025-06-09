@@ -3,6 +3,7 @@ from typing import Any, Dict, Optional
 from models.command import CommandModel
 from providers.model_provider import ModelProvider
 from providers.ThreadMapper import ThreadMapper
+import time
 
 class OpenAIModelProvider(ModelProvider):
     def __init__(self, api_key: str, model: str = "gpt-4o-mini"):
@@ -44,8 +45,23 @@ class OpenAIModelProvider(ModelProvider):
         )
         return completion.output_text
 
+    def wait_for_run_completion(self, thread_id: str, run_id: str) -> None:
+        """Wait for a run to complete and handle any errors."""
+        while True:
+            run_status = openai.beta.threads.runs.retrieve(
+                thread_id=thread_id,
+                run_id=run_id
+            )
+            if run_status.status == 'completed':
+                break
+            elif run_status.status in ['failed', 'cancelled', 'expired']:
+                raise Exception(f"Run failed with status: {run_status.status}")
+            time.sleep(1)  # Wait a second before checking again
+
     def generate_thread(self, thread_id: str, prompt: str) -> str:
         openai.api_key = self.api_key
+        if not thread_id:
+            thread_id = "default"
         thread_id_map = ThreadMapper.get_thread_map()
         self.create_thread_if_does_not_exist(thread_id, thread_id_map)
         updated_thread_id_map = ThreadMapper.get_thread_map()
@@ -59,8 +75,14 @@ class OpenAIModelProvider(ModelProvider):
             thread_id=real_id,
             assistant_id=self.assistant_id
         )
-        response = self.poll_for_llm_response(real_id, message.id)
-        return response.content[0].text.value
+        
+        # Wait for the run to complete
+        self.wait_for_run_completion(real_id, run.id)
+            
+        # Get the latest message after the run is complete
+        messages = openai.beta.threads.messages.list(thread_id=real_id)
+        latest_message = messages.data[0]
+        return latest_message.content[0].text.value
 
     def poll_for_llm_response(self, t_id: str, m_id: str):
         messages = openai.beta.threads.messages.list(t_id)
