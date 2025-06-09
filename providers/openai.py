@@ -37,14 +37,6 @@ class OpenAIModelProvider(ModelProvider):
         if parsed_completion := completion.output_parsed:
             return CommandModel(**parsed_completion.model_dump())
 
-    def generate_chat(self, prompt: str) -> str:
-        openai.api_key = self.api_key
-        completion = openai.responses.create(
-            model = self.model,
-            input = prompt
-        )
-        return completion.output_text
-
     def wait_for_run_completion(self, thread_id: str, run_id: str) -> None:
         """Wait for a run to complete and handle any errors."""
         while True:
