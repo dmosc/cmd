@@ -84,12 +84,6 @@ class OpenAIModelProvider(ModelProvider):
         latest_message = messages.data[0]
         return latest_message.content[0].text.value
 
-    def poll_for_llm_response(self, t_id: str, m_id: str):
-        messages = openai.beta.threads.messages.list(t_id)
-        while self.latest_message_is_user_message(messages, m_id):
-            messages = openai.beta.threads.messages.list(t_id)
-        return messages.data[0]
-
     def latest_message_is_user_message(self, messages, m_id: str) -> bool:
         return messages.data[0].id == m_id
 
