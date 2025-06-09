@@ -84,9 +84,6 @@ class OpenAIModelProvider(ModelProvider):
         latest_message = messages.data[0]
         return latest_message.content[0].text.value
 
-    def latest_message_is_user_message(self, messages, m_id: str) -> bool:
-        return messages.data[0].id == m_id
-
     def create_thread_if_does_not_exist(self, t_id: str, thread_id_map):
         if t_id not in thread_id_map.keys():
             response = openai.beta.threads.create()
