@@ -1,7 +1,8 @@
 import os
 import subprocess
-from providers.openai import OpenAIModelProvider
+from providers.deepseek import DeepseekModelProvider
 from argument_parser import ArgumentParser
+
 
 def get_env_vars():
     return dict(os.environ)
@@ -20,35 +21,36 @@ def get_installed_clis():
 
 def main():
     args = ArgumentParser.parse()
-    api_key = os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        print("Error: Please set the OPENAI_API_KEY environment variable.")
-        exit(1)
     # Snapshot context
     context = {
         "env_vars": get_env_vars(),
         "installed_clis": get_installed_clis(),
     }
-    provider = OpenAIModelProvider(api_key=api_key)
-    if args.prompt:
-        command = provider.generate_command(args.prompt, context)
-        if command:
-            print(f"\nDescription: {command.description}")
-            print(f"Command: {command.full_command}")
-            if command.flags:
-                print("Flags:")
-                for flag in command.flags:
-                    print(f"  --{flag.name} {flag.value}")
-            # Offer to run the command
-            user_input = input(f"Would you like to run this command? [y/N]: ").strip().lower()
-            if user_input == 'y':
-                try:
-                    print(f"Running: {command.full_command}")
-                    result = subprocess.run(command.full_command, shell=True, check=True, text=True)
-                except subprocess.CalledProcessError as e:
-                    print(f"Error running command: {e}")
-    elif args.chat:
-        print(provider.generate_chat(args.chat))
+    
+    try:
+        provider = DeepseekModelProvider()
+        if args.prompt:
+            command = provider.generate_command(args.prompt, context)
+            if command:
+                print(f"\nDescription: {command.description}")
+                print(f"Command: {command.full_command}")
+                if command.flags:
+                    print("Flags:")
+                    for flag in command.flags:
+                        print(f"  --{flag.name} {flag.value}")
+                # Offer to run the command
+                user_input = input(f"Would you like to run this command? [y/N]: ").strip().lower()
+                if user_input == 'y':
+                    try:
+                        print(f"Running: {command.full_command}")
+                        result = subprocess.run(command.full_command, shell=True, check=True, text=True)
+                    except subprocess.CalledProcessError as e:
+                        print(f"Error running command: {e}")
+        elif args.chat:
+            print(provider.generate_chat(args.chat))
+    except RuntimeError as e:
+        print(f"Error: {e}")
+        return
 
 if __name__ == "__main__":
     main()
