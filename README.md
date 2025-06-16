@@ -31,7 +31,7 @@ Command isn't a black box. For every suggested command, it breaks down what each
 Run the following command from your terminal:
 
 ```bash
-curl -s https://raw.githubusercontent.com/dmosc/cmd/main/scripts/install.sh | sh
+bash <(curl -s https://raw.githubusercontent.com/dmosc/cmd/main/scripts/install.sh)
 ```
 
 The installer will:

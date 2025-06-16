@@ -45,7 +45,7 @@ install_ollama() {
             # Copy to Applications
             mv -f "$APP_FILE" /Applications/
             rm -rf "$ZIP_PATH"
-            echo "Ollama has been installed to /Applications. Please open it to complete the installation."
+            echo "Ollama has been successfully installed!"
             ;;
         "linux")
             echo "Installing Ollama for Linux..."
@@ -64,6 +64,24 @@ install_ollama() {
     esac
 }
 
+# Function to start Ollama with deepseek model
+start_ollama_with_model() {    
+    echo "Starting Ollama server with latest Deepseek model..."
+    # Start Ollama in the background
+    nohup ollama run $1 > /dev/null 2>&1 &
+    # Wait for the server to be ready
+    echo "Waiting for Ollama server to start..."
+    for i in {1..30}; do
+        if curl -s http://localhost:11434 > /dev/null; then
+            echo "Ollama server is ready!"
+            return 0
+        fi
+        sleep 1
+    done
+    echo "Error: Ollama server failed to start"
+    return 1
+}
+
 main() {
     # Check if Ollama is installed
     if ! command_exists ollama; then
@@ -72,6 +90,7 @@ main() {
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             install_ollama
+            start_ollama_with_model deepseek-r1
         else
             echo "Please install Ollama manually from https://ollama.com/download"
             exit 1
